@@ -1,0 +1,46 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "airbnb"
+    ],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react"
+    ],
+    "rules": {
+        "react/jsx-props-no-spreading": "off",
+        "linebreak-style": 0,
+        "indent": ["error", 2],
+        "react/prop-types": 0,
+        "camelcase": ["warn"],
+        "react/jsx-no-bind": "off"
+    },
+    "settings": {
+        "import/resolver" : {
+            "node": {
+                "moduleDirectory": ["node_modules", "src/"]
+            },
+            "alias" : {
+                "map" : [
+                    ["./node_modules"],
+                    ["redux","./src/redux/"],
+                    ["components","./src/components/"],
+                    ["pages","./src/pages/"],
+                    ["routes","./src/routes/"]
+                ],
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    }
+}
