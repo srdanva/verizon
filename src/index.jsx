@@ -31,6 +31,14 @@ const theme = createTheme({
     primary: {
       main: '#000000',
     },
+    selected: {
+      main: '#F5F9FE',
+      contrastText: '#2F80ED',
+    },
+    unselected: {
+      main: '#f2f2f2',
+      contrastText: '#646464',
+    },
   },
 });
 
