@@ -5,7 +5,7 @@
       "redux/*": ["redux/*", "redux"],
       "pages/*": ["pages/*", "pages"],
       "components/*": ["components/*", "components"],
-      "routes/*": ["routes/*", "routes"],
+      "api/*": ["api/*", "api"],
       "constants": ["constants"]
     }
   }

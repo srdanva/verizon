@@ -24,6 +24,7 @@
         "indent": ["error", 2],
         "react/prop-types": 0,
         "camelcase": ["warn"],
+        "import/resolver": "off",
         "react/jsx-no-bind": "off"
     },
     "settings": {
@@ -37,7 +38,7 @@
                     ["redux","./src/redux/"],
                     ["components","./src/components/"],
                     ["pages","./src/pages/"],
-                    ["routes","./src/routes/"]
+                    ["api","./src/api/"]
                 ],
                 "extensions": [".js", ".jsx", ".ts", ".tsx"]
             }

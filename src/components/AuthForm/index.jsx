@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable */
+import React, {useEffect, useState} from 'react';
 import {
   Typography,
   TextField,
@@ -12,15 +13,26 @@ import {
   FormControlLabel,
   Link,
   Button,
+  Alert,
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { login } from 'api';
+import Cookies from 'js-cookie';
+import routerPaths from 'routerPaths';
+import { useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { getAuthToken } from 'redux/actions/auth';
 
 const AuthForm = function ({ setResetPassword }) {
-  const [values, setValues] = React.useState({
+  const history = useHistory();
+  const [values, setValues] = useState({
+    username: '',
     password: '',
     showPassword: false,
   });
+  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -37,6 +49,22 @@ const AuthForm = function ({ setResetPassword }) {
     event.preventDefault();
   };
 
+  const doLogin = () => {
+    login({ username: values.username, password: values.password }).then(({ promise, status }) => {
+      if (status !== 200) {
+        promise.then((json) => {
+          setError(json.detail);
+        });
+      } else {
+        promise.then((json) => {
+          Cookies.set('access_token', json.token, { expires: 1 });
+          dispatch(getAuthToken({ authToken: json.token }));
+          history.push(routerPaths.dashboard.getUrl());
+        });
+      }
+    });
+  };
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
@@ -46,7 +74,13 @@ const AuthForm = function ({ setResetPassword }) {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <TextField label="Login" variant="filled" fullWidth />
+        <TextField
+          label="Login"
+          variant="filled"
+          fullWidth
+          value={values.username}
+          onChange={handleChange('username')}
+        />
       </Grid>
       <Grid item xs={12}>
         <FormControl variant="filled" fullWidth>
@@ -96,12 +130,19 @@ const AuthForm = function ({ setResetPassword }) {
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
         <Link onClick={() => setResetPassword(true)}><Typography variant="body2">Forgot password?</Typography></Link>
       </Grid>
+      {error && (
+        <Grid item xs={12}>
+          <Alert severity="error">{error}</Alert>
+        </Grid>
+      )}
       <Grid item xs={12}>
         <Button
           type="button"
           fullWidth
           variant="contained"
           size="large"
+          disabled={!(values.username.length > 3 && values.password.length > 5)}
+          onClick={doLogin}
         >
           Login
         </Button>

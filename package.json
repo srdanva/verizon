@@ -16,7 +16,7 @@
     "chart.js": "^3.6.1",
     "date-fns": "^2.27.0",
     "faker": "^5.5.3",
-    "history": "^5.1.0",
+    "js-cookie": "^3.0.1",
     "material-ui-popup-state": "^2.0.0",
     "react": "^17.0.2",
     "react-chartjs-2": "^4.0.0",
@@ -24,8 +24,11 @@
     "react-map-gl": "^6.1.17",
     "react-map-gl-draw": "^0.23.8",
     "react-mapbox-gl-draw": "^2.0.4",
+    "react-redux": "^7.2.6",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
+    "redux": "^4.1.2",
+    "redux-thunk": "^2.4.1",
     "web-vitals": "^1.0.1"
   },
   "scripts": {

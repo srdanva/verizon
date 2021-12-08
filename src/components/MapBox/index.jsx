@@ -144,12 +144,19 @@ const MapBox = function () {
   },[]);
 
   useEffect(() => {
-    fetch(poiJson).then((response) => response.json()).then((data) => {
+    const controller = new AbortController()
+    const signal = controller.signal;
+
+    fetch(poiJson, { signal: signal }).then((response) => response.json()).then((data) => {
       setPoiData(data);
     });
-    fetch(heatmapJson).then((response) => response.json()).then((data) => {
+    fetch(heatmapJson, { signal: signal }).then((response) => response.json()).then((data) => {
       setHeatmapData(data);
     });
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const drawTools = (

@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-
-import { Router } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import App from './App';
-import history from './history';
+import store from './store';
 
 const defaultStyles = {
   '*': {
@@ -44,12 +44,14 @@ const theme = createTheme({
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router history={history}>
-      <ThemeProvider theme={theme}>
-        <GlobalStyles styles={defaultStyles} />
-        <App />
-      </ThemeProvider>
-    </Router>
+    <Provider store={store}>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <GlobalStyles styles={defaultStyles} />
+          <App />
+        </ThemeProvider>
+      </BrowserRouter>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root'),
 );
