@@ -13,3 +13,5 @@ curl -X 'POST' \
   -H 'Content-Type: application/json' \
   -d '{"username": "test_user", "password": "secret_password_123"}'
 ```
+
+Docs: http://0.0.0.0:9999/docs

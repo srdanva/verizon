@@ -13,3 +13,28 @@ export function login(body) {
     return ({ promise: res.json(), status: res.status });
   });
 }
+
+export function registerPoi(body, authToken) {
+  return fetch(API_DIMAIN + '/register/poi', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(body),
+  }).then(res => {
+    return res.json();
+  });
+}
+
+export function getPoi(authToken) {
+  return fetch(API_DIMAIN + '/get/poi', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+  }).then(res => {
+    return res.json();
+  });
+}

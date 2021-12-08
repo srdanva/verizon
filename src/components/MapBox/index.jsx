@@ -83,7 +83,7 @@ const clusterText = {
   },
 };
 
-const MapBox = function () {
+const MapBox = function ({ isSettingPoi, setNewPoiPolygon }) {
   const classes = useStyles();
   const mapRef = useRef();
   const [poiData, setPoiData] = useState(null);
@@ -106,12 +106,19 @@ const MapBox = function () {
   const onDelete = useCallback(() => {
     if (selectedFeatureIndex !== null && selectedFeatureIndex >= 0) {
       editorRef.current.deleteFeatures(selectedFeatureIndex);
+      setNewPoiPolygon(null);
     }
   }, [selectedFeatureIndex]);
 
-  const onUpdate = useCallback(({ editType }) => {
+  const onUpdate = useCallback(({ editType, data }) => {
     if (editType === 'addFeature') {
       setMode(new EditingMode());
+      if (data.length > 1) {
+        editorRef.current.deleteFeatures(0);
+        setNewPoiPolygon(data[1]);
+      } else {
+        setNewPoiPolygon(data[0]);
+      }
     }
   }, []);
 
@@ -189,18 +196,20 @@ const MapBox = function () {
         onClick={onMapClick}
         onHover={onHover}
       >
-        <Editor
-          ref={editorRef}
-          style={{ width: '100%', height: '100%' }}
-          clickRadius={12}
-          mode={mode}
-          onSelect={onSelect}
-          onUpdate={onUpdate}
-          editHandleShape="circle"
-          featureStyle={getFeatureStyle}
-          editHandleStyle={getEditHandleStyle}
-        />
-        {drawTools}
+        {isSettingPoi &&
+          <Editor
+            ref={editorRef}
+            style={{ width: '100%', height: '100%' }}
+            clickRadius={12}
+            mode={mode}
+            onSelect={onSelect}
+            onUpdate={onUpdate}
+            editHandleShape="circle"
+            featureStyle={getFeatureStyle}
+            editHandleStyle={getEditHandleStyle}
+          />
+        }
+        {isSettingPoi && drawTools}
         <Source
           id="poi-data"
           type="geojson"
