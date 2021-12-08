@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { makeStyles } from '@mui/styles';
+import routerPaths from 'routerPaths';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -21,6 +23,7 @@ const useStyles = makeStyles(() => ({
 
 const Header = function () {
   const classes = useStyles();
+  const history = useHistory();
 
   return (
     <AppBar position="static">
@@ -43,7 +46,7 @@ const Header = function () {
                 <IconButton>
                   <NotificationsNoneIcon sx={{ color: '#fff' }} />
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={() => history.push(routerPaths.auth.getUrl())}>
                   <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
                 </IconButton>
                 <Box sx={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px' }}>
