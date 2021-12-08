@@ -7,7 +7,45 @@ from .schemas import Region, TransitPair, Alert, AuthDetails
 from .auth import AuthHandler
 from .area import area
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "login",
+        "description": "Simple username and password login, \
+                        defaults saved at build time as 'test_user' \
+                        and 'secret_password_123'.",
+    },
+    {
+        "name": "register_poi",
+        "description": "Registers an area of interest. Each POI is a polygon and needs \
+                       a unique name (str) and a list of coordinates (list[list[int, int]])."
+    },
+    {
+        "name": "get_poi",
+        "description": "Gets all registered POIs."
+    },
+    {
+        "name": "register_transit",
+        "description": "Register a pair of POIs to track, reference them by their unique names."
+    },
+    {
+        "name": "get_transit",
+        "description": "Gets all registered transit pairs."
+    },
+    {
+        "name": "register_alert",
+        "description": "Register an alert to be notified of if exceeded. alert_type needs to be \
+        of [\"volume\", \"dwell\", \"congestion\", \"transit\"]. Level needs to be of int in range 1-3 \
+        (1: info, 2: warning, 3: major alert). Secondary_poi is optional and use for transit based alert where 2 POIs \
+        specify the transit route."
+
+    },
+    {
+        "name": "get_alert",
+        "description": "Gets all registered alerts."
+    },
+]
+
+app = FastAPI(openapi_tags=tags_metadata)
 
 auth_handler = AuthHandler()
 users = []
@@ -31,7 +69,7 @@ def register(username, password):
 
 register("test_user", "secret_password_123")
 
-@app.post("/login")
+@app.post("/login", tags=["login"])
 def login(auth_details: AuthDetails):
     user = None
     for x in users:
@@ -45,7 +83,7 @@ def login(auth_details: AuthDetails):
     return {'token': token}
 
 
-@app.post("/register/poi")
+@app.post("/register/poi", tags=["register_poi"])
 def register_poi(area: Region, username=Depends(auth_handler.auth_wrapper)):
     for area_x in pois:
         if area.name == area_x.name:
@@ -61,12 +99,12 @@ def register_poi(area: Region, username=Depends(auth_handler.auth_wrapper)):
     return {"status": "success"}
 
 
-@app.get("/register/poi")
+@app.get("/get/poi", tags=["get_poi"])
 def get_poi(username=Depends(auth_handler.auth_wrapper)):
     return json.dumps(pois)
 
 
-@app.post("/register/transit")
+@app.post("/register/transit", tags=["register_transit"])
 def register_transit(pair: TransitPair, username=Depends(auth_handler.auth_wrapper)):
     if (pair.A not in [p.name for p in pois]) or (pair.B not in [p.name for p in pois]):
         raise HTTPException(status_code=401, detail='One or more of the transit names not known POI.')
@@ -75,12 +113,12 @@ def register_transit(pair: TransitPair, username=Depends(auth_handler.auth_wrapp
     return {"status": "success"}
 
 
-@app.get("/register/transit")
+@app.get("/get/transit", tags=["get_transit"])
 def get_transit(username=Depends(auth_handler.auth_wrapper)):
     return json.dumps(transits)
 
 
-@app.post("/register/alert")
+@app.post("/register/alert", tags=["register_alert"])
 def register_alert(alert: Alert, username=Depends(auth_handler.auth_wrapper)):
     for alert_x in alerts:
         if alert_x.name == alert.name:
@@ -90,7 +128,7 @@ def register_alert(alert: Alert, username=Depends(auth_handler.auth_wrapper)):
     return {"status": "success"}
 
 
-@app.get("/register/alert")
+@app.get("/get/alert", tags=["get_alert"])
 def get_alert(username=Depends(auth_handler.auth_wrapper)):
     return json.dumps(alerts)
 

@@ -13,3 +13,5 @@ curl -X 'POST' \
   -H 'Content-Type: application/json' \
   -d '{"username": "test_user", "password": "secret_password_123"}'
 ```
+
+API docs available as swagger at `localhost:9999/docs`.
