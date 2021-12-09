@@ -7,12 +7,14 @@ import {
   Paper,
   Typography,
   TextField,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import Header from 'components/Header';
 import MapBox from 'components/MapBox';
 import ChartBox from 'components/ChartBox';
 import Sidebar from 'components/Sidebar';
-import { registerPoi } from 'api';
+import { registerPoi, getPoi } from 'api';
 
 import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
@@ -46,20 +48,38 @@ const Dashboard = function () {
   const [isSettingPoi, setIsSettingPoi] = useState(false);
   const [newPoiPolygon, setNewPoiPolygon] = useState(null);
   const [poiName, setPoiName] = useState('');
+  const [alertMessage, setAlertMessage] = useState(null);
   const authToken = useSelector((state) => state.auth.authToken);
 
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setAlertMessage(null);
+  };
+
   const fetchPoi = () => {
-    // getPoi(authToken).then((data) => { console.log(data); });
+    getPoi(authToken).then((data) => { console.log(data); });
   };
 
   const onPoiSave = () => {
     registerPoi({
       name: poiName,
       points: newPoiPolygon.geometry.coordinates[0],
-    }, authToken).then(() => {
-      setIsSettingPoi(false);
-      setNewPoiPolygon(null);
-      fetchPoi();
+    }, authToken).then(({ promise, status }) => {
+      if (status === 200) {
+        setPoiName('');
+        setIsSettingPoi(false);
+        setNewPoiPolygon(null);
+        fetchPoi();
+      } else {
+        promise.then(({ detail }) => {
+          setAlertMessage(detail);
+        });
+      }
+    }).catch(() => {
+      setAlertMessage('Query error.');
     });
   };
 
@@ -158,6 +178,19 @@ const Dashboard = function () {
           </Grid>
         </Grid>
       </Container>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        open={!!alertMessage}
+        autoHideDuration={6000}
+        onClose={handleAlertClose}
+      >
+        <Alert onClose={handleAlertClose} severity="error" sx={{ width: '100%' }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -36,10 +36,13 @@ class TransitPair(BaseModel):
 
 class Region(BaseModel):
     name: str
-    points: List[List[int]]
+    points: List[List[float]]
 
     @validator('points')
     def at_least_a_triangle(cls, v):
         if len(v) < 3:
             raise ValueError('Region must contain at least 3 points.')
         return v
+
+    def asDict(self):
+        return { 'name': self.name, 'points': self.points }

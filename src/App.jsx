@@ -1,19 +1,15 @@
-/* eslint-disable */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import './App.css';
 import { Box } from '@mui/material';
 import {
   Switch,
   Route,
-  Redirect,
-  useLocation,
 } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
-import Cookies from 'js-cookie';
+import { useSelector } from 'react-redux';
 import routerPaths from './routerPaths';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
-import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   root: {

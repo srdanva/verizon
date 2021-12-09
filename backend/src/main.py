@@ -106,13 +106,13 @@ def register_poi(area: Region, username=Depends(auth_handler.auth_wrapper)):
                                 detail='At least one location pair has the wrong number \
                                 of points (should be 2: [lat, long]).')
 
-    pois.append(area)
+    pois.append(area.asDict())
     return {"status": "success"}
 
 
 @app.get("/get/poi", tags=["get_poi"])
 def get_poi(username=Depends(auth_handler.auth_wrapper)):
-    return json.dumps(pois)
+    return pois
 
 
 @app.post("/register/transit", tags=["register_transit"])

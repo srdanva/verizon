@@ -23,7 +23,7 @@ export function registerPoi(body, authToken) {
     },
     body: JSON.stringify(body),
   }).then(res => {
-    return res.json();
+    return ({ promise: res.json(), status: res.status });
   });
 }
 
