@@ -14,8 +14,8 @@ import Header from 'components/Header';
 import MapBox from 'components/MapBox';
 import ChartBox from 'components/ChartBox';
 import Sidebar from 'components/Sidebar';
-import { registerPoi, getPoi } from 'api';
-
+import { registerPoi, getPois } from 'api';
+import * as turf from '@turf/turf';
 import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
 
@@ -49,6 +49,7 @@ const Dashboard = function () {
   const [newPoiPolygon, setNewPoiPolygon] = useState(null);
   const [poiName, setPoiName] = useState('');
   const [alertMessage, setAlertMessage] = useState(null);
+  const [poisData, setPoisData] = useState([]);
   const authToken = useSelector((state) => state.auth.authToken);
 
   const handleAlertClose = (event, reason) => {
@@ -60,7 +61,19 @@ const Dashboard = function () {
   };
 
   const fetchPoi = () => {
-    getPoi(authToken).then((data) => { console.log(data); });
+    getPois(authToken).then(({ promise, status }) => {
+      if (status === 200) {
+        promise.then((data) => {
+          setPoisData(data);
+        });
+      } else {
+        promise.then(({ detail }) => {
+          setAlertMessage(detail);
+        });
+      }
+    }).catch(() => {
+      setAlertMessage('Error when getting POIs.');
+    });
   };
 
   const onPoiSave = () => {
@@ -89,8 +102,10 @@ const Dashboard = function () {
   };
 
   useEffect(() => {
-    fetchPoi();
-  }, []);
+    if (authToken) {
+      fetchPoi();
+    }
+  }, [authToken]);
 
   return (
     <Box>
@@ -158,6 +173,10 @@ const Dashboard = function () {
               </Grid>
               <Grid item className={`${classes.content} ${classes.spacing2}`}>
                 <MapBox
+                  poiData={turf.featureCollection(poisData.map((poi) => (turf.feature({
+                    type: 'Polygon',
+                    coordinates: [poi.points],
+                  }, { name: poi.name }))))}
                   isSettingPoi={isSettingPoi}
                   setNewPoiPolygon={setNewPoiPolygon}
                 />

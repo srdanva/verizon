@@ -2,6 +2,82 @@
 import { RENDER_STATE } from 'react-map-gl-draw';
 const MAX_ZOOM_LEVEL = 19;
 
+export const poiPolyStyle = {
+  id: 'poiPoly',
+  type: 'fill',
+  'paint': {
+    'fill-color': '#fff', // blue color fill
+    'fill-opacity': 0.3
+  }
+};
+
+export const poiPolyBorderStyle = {
+  id: 'poiPolyBorder',
+  type: 'line',
+  'paint': {
+    'line-color': '#EB5757',
+    'line-width': 2
+  }
+};
+
+export const poiStyle = {
+  id: 'poi',
+  type: 'circle',
+  filter: ['!', ['has', 'point_count']],
+  paint: {
+    'circle-radius': 5,
+    'circle-color': '#EB5757',
+    'circle-opacity': 1,
+  },
+};
+export const poiBorderStyle = {
+  id: 'poiBorder',
+  type: 'circle',
+  filter: ['!', ['has', 'point_count']],
+  paint: {
+    'circle-radius': 10,
+    'circle-color': '#fff',
+    'circle-opacity': 0.7,
+  },
+};
+
+export const poiClusterStyle = {
+  id: 'poiCluster',
+  type: 'circle',
+  filter: ['has', 'point_count'],
+  paint: {
+    'circle-radius': 14,
+    'circle-color': '#fff',
+    'circle-opacity': 1,
+  },
+};
+
+export const poiBorderClusterStyle = {
+  id: 'poiBorderCluster',
+  type: 'circle',
+  filter: ['has', 'point_count'],
+  paint: {
+    'circle-radius': 20,
+    'circle-color': '#fff',
+    'circle-opacity': 0.7,
+  },
+};
+
+export const clusterText = {
+  id: 'cluster-count',
+  type: 'symbol',
+  source: 'earthquakes',
+  filter: ['has', 'point_count'],
+  layout: {
+    'text-field': '{point_count_abbreviated}',
+    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+    'text-size': 14,
+  },
+  paint: {
+    'text-color': '#EB5757',
+  },
+};
+
 export function getEditHandleStyle({ feature, state }) {
   switch (state) {
   case RENDER_STATE.SELECTED:

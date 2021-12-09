@@ -27,7 +27,7 @@ export function registerPoi(body, authToken) {
   });
 }
 
-export function getPoi(authToken) {
+export function getPois(authToken) {
   return fetch(API_DIMAIN + '/get/poi', {
     method: 'GET',
     headers: {
@@ -35,6 +35,6 @@ export function getPoi(authToken) {
       Authorization: `Bearer ${authToken}`,
     },
   }).then(res => {
-    return res.json();
+    return ({ promise: res.json(), status: res.status });
   });
 }

@@ -1,19 +1,17 @@
 /* eslint-disable */
 import React, {
-  useEffect, useRef, useState, useCallback,
+  useRef, useState, useCallback,
 } from 'react';
 import { Box, Typography, Button, Popover } from '@mui/material';
 import ReactMapGL, { Source, Layer, Popup } from 'react-map-gl';
 import { makeStyles } from '@mui/styles';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { Editor, DrawPolygonMode, EditingMode } from 'react-map-gl-draw';
-import poiJson from './poi.geojson';
-import heatmapJson from './heatmap.geojson';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 
-import { getFeatureStyle, getEditHandleStyle, heatmapLayer } from './style';
+import { getFeatureStyle, getEditHandleStyle, poiPolyStyle, poiPolyBorderStyle } from './style';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,69 +23,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const poiStyle = {
-  id: 'poi',
-  type: 'circle',
-  filter: ['!', ['has', 'point_count']],
-  paint: {
-    'circle-radius': 5,
-    'circle-color': '#EB5757',
-    'circle-opacity': 1,
-  },
-};
-const poiBorderStyle = {
-  id: 'poiBorder',
-  type: 'circle',
-  filter: ['!', ['has', 'point_count']],
-  paint: {
-    'circle-radius': 10,
-    'circle-color': '#fff',
-    'circle-opacity': 0.7,
-  },
-};
-
-const poiClusterStyle = {
-  id: 'poiCluster',
-  type: 'circle',
-  filter: ['has', 'point_count'],
-  paint: {
-    'circle-radius': 14,
-    'circle-color': '#fff',
-    'circle-opacity': 1,
-  },
-};
-
-const poiBorderClusterStyle = {
-  id: 'poiBorderCluster',
-  type: 'circle',
-  filter: ['has', 'point_count'],
-  paint: {
-    'circle-radius': 20,
-    'circle-color': '#fff',
-    'circle-opacity': 0.7,
-  },
-};
-
-const clusterText = {
-  id: 'cluster-count',
-  type: 'symbol',
-  source: 'earthquakes',
-  filter: ['has', 'point_count'],
-  layout: {
-    'text-field': '{point_count_abbreviated}',
-    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-    'text-size': 14,
-  },
-  paint: {
-    'text-color': '#EB5757',
-  },
-};
-
-const MapBox = function ({ isSettingPoi, setNewPoiPolygon }) {
+const MapBox = function ({ isSettingPoi, setNewPoiPolygon, poiData }) {
   const classes = useStyles();
   const mapRef = useRef();
-  const [poiData, setPoiData] = useState(null);
-  const [heatmapData, setHeatmapData] = useState(null);
   const [viewport, setViewport] = React.useState({
     longitude: -74.0922,
     latitude: 40.6769,
@@ -122,13 +60,16 @@ const MapBox = function ({ isSettingPoi, setNewPoiPolygon }) {
     }
   }, []);
 
-  const onHover = useCallback(({ features }) => {
+  const onHover = useCallback((e) => {
+    // console.log(e);
+    const { features, lngLat } = e;
     if(features && features[0]){
-      const { layer, geometry } = features[0];
-      if(layer.id === 'poi' || layer.id === 'poiBorder'){
+      const { layer, properties } = features[0];
+      if(layer.id === 'poiPoly'){
         setHoverPopupInfo({
-          longitude: geometry.coordinates[0],
-          latitude: geometry.coordinates[1],
+          longitude: lngLat[0],
+          latitude: lngLat[1],
+          title: properties.name,
         });
       } else {
         setHoverPopupInfo(null);
@@ -138,33 +79,17 @@ const MapBox = function ({ isSettingPoi, setNewPoiPolygon }) {
     }
   },[]);
 
-  const onMapClick = useCallback(({ features }) => {
+  const onMapClick = useCallback(({ features, lngLat }) => {
     if(features && features[0]){
-      const { layer, geometry } = features[0];
-      if(layer.id === 'poi' || layer.id === 'poiBorder'){
+      const { layer } = features[0];
+      if(layer.id === 'poiPoly'){
         setPopupInfo({
-          longitude: geometry.coordinates[0],
-          latitude: geometry.coordinates[1],
+          longitude: lngLat[0],
+          latitude: lngLat[1],
         });
       }
     }
   },[]);
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const signal = controller.signal;
-
-    fetch(poiJson, { signal: signal }).then((response) => response.json()).then((data) => {
-      setPoiData(data);
-    });
-    fetch(heatmapJson, { signal: signal }).then((response) => response.json()).then((data) => {
-      setHeatmapData(data);
-    });
-
-    return () => {
-      controller.abort();
-    };
-  }, []);
 
   const drawTools = (
     <div className="mapboxgl-ctrl-top-right">
@@ -210,7 +135,17 @@ const MapBox = function ({ isSettingPoi, setNewPoiPolygon }) {
           />
         }
         {isSettingPoi && drawTools}
+
         <Source
+          id="poi-poly-data"
+          type="geojson"
+          data={poiData}
+        >
+          <Layer {...poiPolyBorderStyle} />
+          <Layer {...poiPolyStyle} />
+        </Source>
+
+        {/*<Source
           id="poi-data"
           type="geojson"
           data={poiData}
@@ -226,7 +161,7 @@ const MapBox = function ({ isSettingPoi, setNewPoiPolygon }) {
         </Source>
         <Source type="geojson" data={heatmapData}>
           <Layer beforeId="poiBorder" {...heatmapLayer} />
-        </Source>
+        </Source>*/}
         {popupInfo && (
           <Popup
             tipSize={10}
@@ -290,10 +225,7 @@ const MapBox = function ({ isSettingPoi, setNewPoiPolygon }) {
           >
             <Box sx={{ maxWidth: '250px' }}>
               <Typography variant="body1">
-                Unscheduled movement Vm
-              </Typography>
-              <Typography color="caption" variant="caption">
-                Street, New York, 34752
+                {hoverPopupInfo.title}
               </Typography>
             </Box>
           </Popup>

@@ -97,7 +97,7 @@ def login(auth_details: AuthDetails):
 @app.post("/register/poi", tags=["register_poi"])
 def register_poi(area: Region, username=Depends(auth_handler.auth_wrapper)):
     for area_x in pois:
-        if area.name == area_x.name:
+        if area.name == area_x['name']:
             raise HTTPException(status_code=401, detail='POI area name not unique.')
 
     for locs in area.points:
