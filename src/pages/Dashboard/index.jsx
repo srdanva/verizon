@@ -14,7 +14,7 @@ import Header from 'components/Header';
 import MapBox from 'components/MapBox';
 import ChartBox from 'components/ChartBox';
 import Sidebar from 'components/Sidebar';
-import { registerPoi, getPois } from 'api';
+import { registerPoi, getPois, registerTransit } from 'api';
 import * as turf from '@turf/turf';
 import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
@@ -46,9 +46,12 @@ const useStyles = makeStyles((theme) => ({
 const Dashboard = function () {
   const classes = useStyles();
   const [isSettingPoi, setIsSettingPoi] = useState(false);
+  const [selectedPOIs, setSelectedPOIs] = useState([]);
+  const [isSettingTransit, setIsSettingTransit] = useState(false);
   const [newPoiPolygon, setNewPoiPolygon] = useState(null);
   const [poiName, setPoiName] = useState('');
   const [alertMessage, setAlertMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [poisData, setPoisData] = useState([]);
   const authToken = useSelector((state) => state.auth.authToken);
 
@@ -56,8 +59,14 @@ const Dashboard = function () {
     if (reason === 'clickaway') {
       return;
     }
-
     setAlertMessage(null);
+  };
+
+  const handleSuccessClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSuccessMessage(null);
   };
 
   const fetchPoi = () => {
@@ -101,11 +110,44 @@ const Dashboard = function () {
     setNewPoiPolygon(null);
   };
 
+  const onTransitSave = () => {
+    registerTransit({
+      A: selectedPOIs[0],
+      B: selectedPOIs[1],
+    }, authToken).then(({ promise, status }) => {
+      if (status === 200) {
+        setIsSettingTransit(false);
+        setSelectedPOIs([]);
+        setSuccessMessage('Transit is saved.');
+      } else {
+        promise.then(({ detail }) => {
+          setAlertMessage(detail);
+        });
+      }
+    }).catch(() => {
+      setAlertMessage('Query error.');
+    });
+  };
+
+  const onTransitCancel = () => {
+    setIsSettingTransit(false);
+    setSelectedPOIs([]);
+  };
+
   useEffect(() => {
     if (authToken) {
       fetchPoi();
     }
   }, [authToken]);
+
+  useEffect(() => {
+    if (isSettingPoi) {
+      setIsSettingTransit(false);
+    }
+    if (isSettingTransit) {
+      setIsSettingPoi(false);
+    }
+  }, [isSettingTransit, isSettingPoi]);
 
   return (
     <Box>
@@ -118,7 +160,7 @@ const Dashboard = function () {
                 <Typography variant="h6">Heat Map</Typography>
                 <Box sx={{ p: 0, marginLeft: 'auto' }}>
                   <Grid container spacing={2}>
-                    {!isSettingPoi && (
+                    {!isSettingPoi && !isSettingTransit && (
                       <>
                         <Grid item>
                           <Button
@@ -130,11 +172,17 @@ const Dashboard = function () {
                           </Button>
                         </Grid>
                         <Grid item>
-                          <Button type="button" variant="outlined">New Tracker</Button>
+                          <Button
+                            type="button"
+                            variant="outlined"
+                            onClick={() => setIsSettingTransit(true)}
+                          >
+                            New Tracker
+                          </Button>
                         </Grid>
                       </>
                     )}
-                    {isSettingPoi && (
+                    {isSettingPoi && !isSettingTransit && (
                       <>
                         <Grid item>
                           <TextField
@@ -168,6 +216,38 @@ const Dashboard = function () {
                         </Grid>
                       </>
                     )}
+                    {!isSettingPoi && isSettingTransit && (
+                      <>
+                        <Grid item>
+                          <Typography variant="body1">
+                            Select POIs:
+                            {' '}
+                            {selectedPOIs.length}
+                            /2
+                          </Typography>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            type="button"
+                            variant="contained"
+                            color="success"
+                            disabled={selectedPOIs.length !== 2}
+                            onClick={onTransitSave}
+                          >
+                            Save
+                          </Button>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            type="button"
+                            variant="outlined"
+                            onClick={onTransitCancel}
+                          >
+                            Cancel
+                          </Button>
+                        </Grid>
+                      </>
+                    )}
                   </Grid>
                 </Box>
               </Grid>
@@ -177,8 +257,11 @@ const Dashboard = function () {
                     type: 'Polygon',
                     coordinates: [poi.points],
                   }, { name: poi.name }))))}
+                  isSettingTransit={isSettingTransit}
                   isSettingPoi={isSettingPoi}
                   setNewPoiPolygon={setNewPoiPolygon}
+                  selectedPOIs={selectedPOIs}
+                  setSelectedPOIs={setSelectedPOIs}
                 />
               </Grid>
               <Grid item className={`${classes.content} ${classes.spacing4}`}>
@@ -208,6 +291,19 @@ const Dashboard = function () {
       >
         <Alert onClose={handleAlertClose} severity="error" sx={{ width: '100%' }}>
           {alertMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={handleSuccessClose}
+      >
+        <Alert onClose={handleSuccessClose} severity="error" sx={{ width: '100%' }}>
+          {successMessage}
         </Alert>
       </Snackbar>
     </Box>

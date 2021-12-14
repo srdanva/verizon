@@ -8,7 +8,7 @@ export const poiPolyStyle = {
   'paint': {
     'fill-color': '#fff', // blue color fill
     'fill-opacity': 0.3
-  }
+  },
 };
 
 export const poiPolyBorderStyle = {
@@ -17,6 +17,24 @@ export const poiPolyBorderStyle = {
   'paint': {
     'line-color': '#EB5757',
     'line-width': 2
+  },
+};
+
+export const poiPolySelectedStyle = {
+  id: 'poiPolySelected',
+  type: 'fill',
+  'paint': {
+    'fill-color': '#fff',
+    'fill-opacity': 0.6
+  },
+};
+
+export const poiPolyBorderSelectedStyle = {
+  id: 'poiPolyBorderSelected',
+  type: 'line',
+  'paint': {
+    'line-color': '#2e7d32',
+    'line-width': 3
   }
 };
 
