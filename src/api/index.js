@@ -51,3 +51,16 @@ export function registerTransit(body, authToken) {
     return ({ promise: res.json(), status: res.status });
   });
 }
+
+export function registerAlert(body, authToken) {
+  return fetch(API_DIMAIN + '/register/alert', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(body),
+  }).then(res => {
+    return ({ promise: res.json(), status: res.status });
+  });
+}

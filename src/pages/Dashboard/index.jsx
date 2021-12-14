@@ -17,7 +17,8 @@ import Sidebar from 'components/Sidebar';
 import { registerPoi, getPois, registerTransit } from 'api';
 import * as turf from '@turf/turf';
 import { makeStyles } from '@mui/styles';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setPOIs } from 'redux/actions/api';
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -52,7 +53,8 @@ const Dashboard = function () {
   const [poiName, setPoiName] = useState('');
   const [alertMessage, setAlertMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const [poisData, setPoisData] = useState([]);
+  const dispatch = useDispatch();
+  const poisData = useSelector((state) => state.api.pois);
   const authToken = useSelector((state) => state.auth.authToken);
 
   const handleAlertClose = (event, reason) => {
@@ -73,7 +75,7 @@ const Dashboard = function () {
     getPois(authToken).then(({ promise, status }) => {
       if (status === 200) {
         promise.then((data) => {
-          setPoisData(data);
+          dispatch(setPOIs(data));
         });
       } else {
         promise.then(({ detail }) => {

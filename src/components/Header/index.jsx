@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Avatar,
@@ -8,11 +8,43 @@ import {
   Toolbar,
   AppBar,
   Grid,
+  Modal,
+  FormControl,
+  MenuItem,
+  Select,
+  InputLabel,
+  TextField,
+  Button,
 } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { makeStyles } from '@mui/styles';
 import routerPaths from 'routerPaths';
 import { useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
+const alertTypes = [
+  'volume',
+  'dwell',
+  'congestion',
+  'transit',
+];
+
+const alertLevels = [
+  { id: 1, name: '(1) info' },
+  { id: 2, name: '(2) warning' },
+  { id: 3, name: '(3) major alert' },
+];
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+};
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -24,6 +56,18 @@ const useStyles = makeStyles(() => ({
 const Header = function () {
   const classes = useStyles();
   const history = useHistory();
+  const [alertType, setAlertType] = useState('');
+  const [alertComment, setAlertComment] = useState('');
+  const [alertSecondaryPoi, setAlertSecondaryPoi] = useState('');
+  const [alertPrimaryPoi, setAlertPrimaryPoi] = useState('');
+  const [alertLimit, setAlertLimit] = useState(null);
+  const [alertName, setAlertName] = useState('');
+  const [alertLevel, setAlertLevel] = useState('');
+  const [showAddAlert, setShowAddAlert] = useState(false);
+  const poisData = useSelector((state) => state.api.pois);
+
+  const handleOpen = () => setShowAddAlert(true);
+  const handleClose = () => setShowAddAlert(false);
 
   return (
     <AppBar position="static">
@@ -43,7 +87,9 @@ const Header = function () {
             </Grid>
             <Grid item xs={3}>
               <Box sx={{ p: 0 }}>
-                <IconButton>
+                <IconButton
+                  onClick={handleOpen}
+                >
                   <NotificationsNoneIcon sx={{ color: '#fff' }} />
                 </IconButton>
                 <IconButton onClick={() => history.push(routerPaths.auth.getUrl())}>
@@ -58,6 +104,129 @@ const Header = function () {
           </Grid>
         </Toolbar>
       </Container>
+      <Modal
+        open={showAddAlert}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Add New Alert
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="alert-select-label">Alert Type</InputLabel>
+                <Select
+                  labelId="alert-select-label"
+                  id="alert-select"
+                  value={alertType}
+                  label="Alert Type"
+                  onChange={(e) => setAlertType(e.target.value)}
+                >
+                  {alertTypes.map((a) => (
+                    <MenuItem value={a}>{a}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                id="alert-name"
+                label="Name"
+                variant="outlined"
+                value={alertName}
+                onChange={(e) => setAlertName(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="alert-select-primary">Primary POI</InputLabel>
+                <Select
+                  labelId="alert-select-primary"
+                  id="alert-primary"
+                  value={alertPrimaryPoi}
+                  label="Primary POI"
+                  onChange={(e) => setAlertPrimaryPoi(e.target.value)}
+                >
+                  {poisData.map(({ name }) => (
+                    <MenuItem value={name}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="alert-select-secondary">Secondary POI</InputLabel>
+                <Select
+                  labelId="alert-select-secondary"
+                  id="alert-secondary"
+                  value={alertSecondaryPoi}
+                  label="Secondary POI"
+                  onChange={(e) => setAlertSecondaryPoi(e.target.value)}
+                >
+                  {poisData.map(({ name }) => (
+                    <MenuItem value={name}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                id="alert-comment"
+                label="Comment"
+                variant="outlined"
+                value={alertComment}
+                onChange={(e) => setAlertComment(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="alert-select-label">Alert Type</InputLabel>
+                <Select
+                  labelId="alert-select-label"
+                  id="alert-select"
+                  value={alertLevel}
+                  label="Alert Type"
+                  onChange={(e) => setAlertLevel(e.target.value)}
+                >
+                  {alertLevels.map(({ id, name }) => (
+                    <MenuItem value={id}>{name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                id="alert-limit"
+                label="Limit"
+                variant="outlined"
+                type="number"
+                value={alertLimit}
+                onChange={(e) => setAlertLimit(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                fullWidth
+                variant="contained"
+              >
+                Add Alert
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
     </AppBar>
   );
 };
