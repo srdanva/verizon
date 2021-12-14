@@ -117,10 +117,10 @@ def get_poi(username=Depends(auth_handler.auth_wrapper)):
 
 @app.post("/register/transit", tags=["register_transit"])
 def register_transit(pair: TransitPair, username=Depends(auth_handler.auth_wrapper)):
-    if (pair.A not in [p.name for p in pois]) or (pair.B not in [p.name for p in pois]):
+    if (pair.A not in [p['name'] for p in pois]) or (pair.B not in [p['name'] for p in pois]):
         raise HTTPException(status_code=401, detail='One or more of the transit names not known POI.')
 
-    pois.append(pair)
+    transits.append(pair.asDict())
     return {"status": "success"}
 
 

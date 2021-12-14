@@ -33,6 +33,9 @@ class TransitPair(BaseModel):
     A: str
     B: str
 
+    def asDict(self):
+        return { 'A': self.A, 'B': self.B }
+
 
 class Region(BaseModel):
     name: str

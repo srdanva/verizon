@@ -112,8 +112,8 @@ const Dashboard = function () {
 
   const onTransitSave = () => {
     registerTransit({
-      A: selectedPOIs[0],
-      B: selectedPOIs[1],
+      A: selectedPOIs[0].properties.name,
+      B: selectedPOIs[1].properties.name,
     }, authToken).then(({ promise, status }) => {
       if (status === 200) {
         setIsSettingTransit(false);
@@ -302,7 +302,7 @@ const Dashboard = function () {
         autoHideDuration={6000}
         onClose={handleSuccessClose}
       >
-        <Alert onClose={handleSuccessClose} severity="error" sx={{ width: '100%' }}>
+        <Alert onClose={handleSuccessClose} severity="success" sx={{ width: '100%' }}>
           {successMessage}
         </Alert>
       </Snackbar>
