@@ -14,7 +14,9 @@ import Header from 'components/Header';
 import MapBox from 'components/MapBox';
 import ChartBox from 'components/ChartBox';
 import Sidebar from 'components/Sidebar';
-import { registerPoi, getPois, registerTransit } from 'api';
+import {
+  registerPoi, getPois, registerTransit, liveSocket,
+} from 'api';
 import * as turf from '@turf/turf';
 import { makeStyles } from '@mui/styles';
 import { useSelector, useDispatch } from 'react-redux';
@@ -56,6 +58,31 @@ const Dashboard = function () {
   const dispatch = useDispatch();
   const poisData = useSelector((state) => state.api.pois);
   const authToken = useSelector((state) => state.auth.authToken);
+
+  useEffect(() => {
+    const socket = liveSocket();
+
+    socket.onopen = function () {
+      console.log('Соединение установлено.');
+    };
+
+    socket.onclose = function (event) {
+      if (event.wasClean) {
+        console.log('Соединение закрыто чисто');
+      } else {
+        console.log('Обрыв соединения');
+      }
+      console.log(`Код: ${event.code} причина: ${event.reason}`);
+    };
+
+    socket.onmessage = function (event) {
+      console.log(`Получены данные ${event.data}`);
+    };
+
+    socket.onerror = function (error) {
+      console.log(`Ошибка ${error.message}`);
+    };
+  }, []);
 
   const handleAlertClose = (event, reason) => {
     if (reason === 'clickaway') {

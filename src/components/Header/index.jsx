@@ -21,6 +21,7 @@ import { makeStyles } from '@mui/styles';
 import routerPaths from 'routerPaths';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { registerAlert } from 'api';
 
 const alertTypes = [
   'volume',
@@ -56,18 +57,65 @@ const useStyles = makeStyles(() => ({
 const Header = function () {
   const classes = useStyles();
   const history = useHistory();
-  const [alertType, setAlertType] = useState('');
-  const [alertComment, setAlertComment] = useState('');
-  const [alertSecondaryPoi, setAlertSecondaryPoi] = useState('');
-  const [alertPrimaryPoi, setAlertPrimaryPoi] = useState('');
-  const [alertLimit, setAlertLimit] = useState(null);
-  const [alertName, setAlertName] = useState('');
-  const [alertLevel, setAlertLevel] = useState('');
   const [showAddAlert, setShowAddAlert] = useState(false);
+  const [formData, setFormData] = useState({
+    alert_type: '',
+    name: '',
+    primary_poi: '',
+    secondary_poi: '',
+    break_comment: '',
+    level: '',
+    limit: '',
+  });
   const poisData = useSelector((state) => state.api.pois);
+  const authToken = useSelector((state) => state.auth.authToken);
 
   const handleOpen = () => setShowAddAlert(true);
   const handleClose = () => setShowAddAlert(false);
+
+  const onChangeFormData = (key, value) => {
+    setFormData({
+      ...formData,
+      [key]: value,
+    });
+  };
+
+  // const isString = (value) => typeof value === 'string' || value instanceof String;
+
+  const addAlertClick = () => {
+    let isValid = true;
+    let validator;
+    const reg = /^\d+$/;
+    const formKeys = Object.keys(formData);
+    const formValues = Object.values(formData);
+    for (let i = 0; i < formValues.length; i += 1) {
+      const isValueValid = formValues[i]
+        && (reg.test(formValues[i]) ? true : String(formValues[i]).length > 0);
+      validator = {
+        ...validator,
+        [formKeys[i]]: isValueValid,
+      };
+      if (!isValueValid) {
+        isValid = false;
+      }
+    }
+
+    if (isValid) {
+      registerAlert(formData, authToken).then(({ promise, status }) => {
+        if (status === 200) {
+          promise.then((data) => {
+            console.log(data);
+          });
+        } else {
+          promise.then(({ detail }) => {
+            console.log(detail);
+          });
+        }
+      }).catch(() => {
+        console.log('Error when getting POIs.');
+      });
+    }
+  };
 
   return (
     <AppBar position="static">
@@ -123,9 +171,9 @@ const Header = function () {
                 <Select
                   labelId="alert-select-label"
                   id="alert-select"
-                  value={alertType}
+                  value={formData.alert_type}
                   label="Alert Type"
-                  onChange={(e) => setAlertType(e.target.value)}
+                  onChange={(e) => onChangeFormData('alert_type', e.target.value)}
                 >
                   {alertTypes.map((a) => (
                     <MenuItem value={a}>{a}</MenuItem>
@@ -139,8 +187,8 @@ const Header = function () {
                 id="alert-name"
                 label="Name"
                 variant="outlined"
-                value={alertName}
-                onChange={(e) => setAlertName(e.target.value)}
+                value={formData.name}
+                onChange={(e) => onChangeFormData('name', e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -149,9 +197,9 @@ const Header = function () {
                 <Select
                   labelId="alert-select-primary"
                   id="alert-primary"
-                  value={alertPrimaryPoi}
+                  value={formData.primary_poi}
                   label="Primary POI"
-                  onChange={(e) => setAlertPrimaryPoi(e.target.value)}
+                  onChange={(e) => onChangeFormData('primary_poi', e.target.value)}
                 >
                   {poisData.map(({ name }) => (
                     <MenuItem value={name}>
@@ -167,9 +215,9 @@ const Header = function () {
                 <Select
                   labelId="alert-select-secondary"
                   id="alert-secondary"
-                  value={alertSecondaryPoi}
+                  value={formData.secondary_poi}
                   label="Secondary POI"
-                  onChange={(e) => setAlertSecondaryPoi(e.target.value)}
+                  onChange={(e) => onChangeFormData('secondary_poi', e.target.value)}
                 >
                   {poisData.map(({ name }) => (
                     <MenuItem value={name}>
@@ -185,8 +233,8 @@ const Header = function () {
                 id="alert-comment"
                 label="Comment"
                 variant="outlined"
-                value={alertComment}
-                onChange={(e) => setAlertComment(e.target.value)}
+                value={formData.break_comment}
+                onChange={(e) => onChangeFormData('break_comment', e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -195,9 +243,9 @@ const Header = function () {
                 <Select
                   labelId="alert-select-label"
                   id="alert-select"
-                  value={alertLevel}
+                  value={formData.level}
                   label="Alert Type"
-                  onChange={(e) => setAlertLevel(e.target.value)}
+                  onChange={(e) => onChangeFormData('level', e.target.value)}
                 >
                   {alertLevels.map(({ id, name }) => (
                     <MenuItem value={id}>{name}</MenuItem>
@@ -212,14 +260,15 @@ const Header = function () {
                 label="Limit"
                 variant="outlined"
                 type="number"
-                value={alertLimit}
-                onChange={(e) => setAlertLimit(e.target.value)}
+                value={formData.limit}
+                onChange={(e) => onChangeFormData('limit', e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
               <Button
                 fullWidth
                 variant="contained"
+                onClick={addAlertClick}
               >
                 Add Alert
               </Button>
