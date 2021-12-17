@@ -6,15 +6,14 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import { DatePicker, TimePicker } from '@mui/lab';
+import { DateTimePicker } from '@mui/lab';
 
-const FilterForm = function ({ type }) {
+const FilterForm = function () {
   const [open, setOpen] = useState(false);
   const [valueFrom, setValueFrom] = useState(null);
   const [valueTo, setValueTo] = useState(null);
 
-  const title = type === 'date' ? 'Date' : 'Time';
-  const Picker = type === 'date' ? DatePicker : TimePicker;
+  const title = 'Date and Time';
 
   return (
     <Box>
@@ -26,7 +25,7 @@ const FilterForm = function ({ type }) {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Grid container spacing={1}>
             <Grid xs={12} item>
-              <Picker
+              <DateTimePicker
                 label={`Choose from ${title.toLowerCase()}`}
                 value={valueFrom}
                 onChange={(newValue) => {
@@ -36,7 +35,7 @@ const FilterForm = function ({ type }) {
               />
             </Grid>
             <Grid xs={12} item>
-              <Picker
+              <DateTimePicker
                 label={`Choose to ${title.toLowerCase()}`}
                 value={valueTo}
                 onChange={(newValue) => {

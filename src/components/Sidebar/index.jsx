@@ -4,6 +4,7 @@ import {
   Box,
   IconButton,
   Typography,
+  Button,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -50,7 +51,7 @@ const Sidebar = function () {
         </Grid>
       )}
       {showFilters && (
-        <Grid container>
+        <Grid container spacing={2}>
           <Grid item xs={12} sx={{ display: 'inline-flex' }}>
             <Typography variant="h6">
               Filter
@@ -62,8 +63,12 @@ const Sidebar = function () {
             </Box>
           </Grid>
           <Grid item xs={12}>
-            <FilterForm type="date" />
-            <FilterForm type="time" />
+            <FilterForm />
+          </Grid>
+          <Grid item xs={12}>
+            <Button fullWidth variant="contained" type="button">
+              Download
+            </Button>
           </Grid>
         </Grid>
       )}
