@@ -28,6 +28,17 @@ class Alert(BaseModel):
             raise ValueError(f'{v} not a level (1: info, 2: warning, 3: major alert).')
         return v
 
+    def asDict(self):
+        return {
+            'alert_type': self.alert_type,
+            'name': self.name,
+            'primary_poi': self.primary_poi,
+            'secondary_poi': self.secondary_poi,
+            'break_comment': self.break_comment,
+            'level': self.level,
+            'limit': self.limit
+        }
+
 
 class TransitPair(BaseModel):
     A: str

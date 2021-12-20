@@ -415,7 +415,7 @@ const Dashboard = function () {
                             variant="outlined"
                             onClick={() => setIsSettingTransit(true)}
                           >
-                            New Tracker
+                            New Transit
                           </Button>
                         </Grid>
                         <Grid item>
