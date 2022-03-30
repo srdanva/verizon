@@ -1,3 +1,5 @@
+Verizon Web app with React, Mapbox and Python
+
 ```bash
 // build
 docker build . -t verizon 
